@@ -9,22 +9,37 @@ export default function Specs() {
   ];
 
   return (
-    <section id="specs" className="card card-feature">
+    <motion.section 
+      id="specs" 
+      initial={{ opacity: 0, scale: 0.9 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      whileHover={{ y: -5 }}
+      className="card card-feature group cursor-default"
+    >
       <div>
-        <div className="card-tag">Technical</div>
-        <h3 className="text-2xl font-bold mb-4">AgNW Specs</h3>
+        <div className="card-tag group-hover:text-accent transition-colors">Technical</div>
+        <h3 className="text-2xl font-bold mb-4 group-hover:text-accent transition-colors">AgNW Specs</h3>
       </div>
       <div className="space-y-3">
         {specs.map((s, i) => (
-          <div key={i} className="flex justify-between items-center text-[11px] border-b border-white/5 pb-2 last:border-0">
-            <span className="text-text-secondary font-mono">D: {s.d}</span>
-            <span className="text-accent font-bold font-mono">L: {s.l}</span>
-          </div>
+          <motion.div 
+            key={i} 
+            whileHover={{ x: 5 }}
+            className="flex justify-between items-center text-[11px] border-b border-white/5 pb-2 last:border-0 group/item"
+          >
+            <span className="text-text-secondary font-mono group-hover/item:text-text-primary transition-colors">D: {s.d}</span>
+            <span className="text-accent font-bold font-mono group-hover/item:scale-110 transition-transform origin-right">L: {s.l}</span>
+          </motion.div>
         ))}
       </div>
-      <div className="mt-4 text-[10px] text-center text-text-secondary uppercase tracking-widest">
+      <motion.div 
+        animate={{ opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: 3, repeat: Infinity }}
+        className="mt-4 text-[10px] text-center text-text-secondary uppercase tracking-widest"
+      >
         Custom geometries available
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   );
 }
