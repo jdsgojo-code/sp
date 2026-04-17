@@ -1,14 +1,15 @@
 import { motion } from "motion/react";
-import { Menu, X, Atom } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { name: "Home", href: "#" },
-    { name: "Product", href: "#products" },
-    { name: "About Us", href: "#about" },
+    { name: "Home", href: "/" },
+    { name: "Product", href: "/#products" },
+    { name: "About Us", href: "/#about" },
   ];
 
   return (
@@ -16,22 +17,24 @@ export default function Navbar() {
       <div className="w-full px-4 sm:px-8 lg:px-12">
         <div className="flex items-center justify-between h-20">
           {/* Logo - Left */}
-          <motion.div 
-            whileHover={{ scale: 1.02 }}
-            className="flex items-center gap-3 cursor-pointer shrink-0"
-          >
-            <div className="flex items-center">
-              <span className="text-4xl font-black tracking-tighter text-white leading-none">VB</span>
-              <div className="flex flex-col ml-1 leading-none">
-                <span className="text-lg font-bold text-accent">F</span>
-                <span className="text-lg font-bold text-accent">M</span>
+          <Link to="/">
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              className="flex items-center gap-3 cursor-pointer shrink-0"
+            >
+              <div className="flex items-center">
+                <span className="text-4xl font-black tracking-tighter text-white leading-none">VB</span>
+                <div className="flex flex-col ml-1 leading-none">
+                  <span className="text-lg font-bold text-accent">F</span>
+                  <span className="text-lg font-bold text-accent">M</span>
+                </div>
               </div>
-            </div>
-            <div className="hidden lg:block h-8 w-px bg-border mx-2" />
-            <span className="hidden lg:block text-xs font-bold uppercase tracking-[0.2em] text-text-secondary leading-tight">
-              Vasanthabala <br /> Functional Materials
-            </span>
-          </motion.div>
+              <div className="hidden lg:block h-8 w-px bg-border mx-2" />
+              <span className="hidden lg:block text-xs font-bold uppercase tracking-[0.2em] text-text-secondary leading-tight">
+                Vasanthabala <br /> Functional Materials
+              </span>
+            </motion.div>
+          </Link>
 
           {/* Desktop Links - Centered */}
           <div className="hidden md:flex flex-1 justify-center">

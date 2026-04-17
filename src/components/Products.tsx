@@ -1,130 +1,171 @@
 import { motion } from "motion/react";
 import { Box, Layers, PenTool, Cpu, Zap, Activity } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import LemniscateBloom from "./LemniscateBloom";
 
 export default function Products() {
-  const nanomaterials = [
-    { 
-      title: "Silver Nanowires", 
-      desc: "High aspect ratio nanowires for transparent conductive films.",
-      icon: <Box className="w-6 h-6" />,
-      specs: ["99.9% Purity", "Tailored Aspect Ratio"]
-    },
-    { 
-      title: "Conductive Adhesives", 
-      desc: "Isotropic and anisotropic adhesives for microelectronics.",
-      icon: <Layers className="w-6 h-6" />,
-      specs: ["High Conductivity", "Low Curing Temp"]
-    },
-    { 
-      title: "Conductive Inks", 
-      desc: "Silver-based inks for screen and inkjet printing.",
-      icon: <PenTool className="w-6 h-6" />,
-      specs: ["Excellent Adhesion", "High Resolution"]
-    },
-    { 
-      title: "Nanoparticle Pastes", 
-      desc: "Sintering pastes for high-power electronic packaging.",
-      icon: <Zap className="w-6 h-6" />,
-      specs: ["Superior Thermal Mgmt", "Lead-Free"]
-    },
+  const navigate = useNavigate();
+  const [activeCategory, setActiveCategory] = useState("nanomaterials");
+
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: "-20% 0px -60% 0px", // Focus more on the top-middle segment
+      threshold: [0, 0.1, 0.2]
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      // Find the entry that is most prominent in the top section
+      const visible = entries.filter(e => e.isIntersecting);
+      if (visible.length > 0) {
+        // Sort by how close the top of the element is to the top of our observation root area
+        visible.sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top));
+        setActiveCategory(visible[0].target.id);
+      }
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    const targets = document.querySelectorAll("[data-product-category]");
+    targets.forEach((t) => observer.observe(t));
+
+    // Fallback/Secondary mechanism: Manual scroll position check for edge cases
+    const handleScroll = () => {
+      const scrollPos = window.scrollY + 150;
+      const sections = document.querySelectorAll("[data-product-category]");
+      
+      sections.forEach((section) => {
+        const top = (section as HTMLElement).offsetTop;
+        const height = (section as HTMLElement).offsetHeight;
+        if (scrollPos >= top && scrollPos <= top + height) {
+          setActiveCategory(section.id);
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  const nanomaterialsData = [
+    { id: 1, tag: "Nanomaterials", title: "Silver Nanowires", description: "High aspect ratio silver nanowires ideal for transparent conductive films and flexible electronics.", applications: ["Flexible Displays", "Touch Screens", "Smart Windows", "Wearable Electronics"], slug: "silver-nanowires" },
+    { id: 2, tag: "Nanomaterials", title: "Silver Nanoparticles", description: "High-purity silver nanoparticles for catalysis, antimicrobial coatings, and conductive applications.", applications: ["Conductive Inks", "Antimicrobial Coatings", "Sensors", "Catalysis"], slug: "silver-nanoparticles" },
+    { id: 3, tag: "Nanomaterials", title: "Copper Nanoparticles", description: "Cost-effective, highly conductive copper nanoparticles for conductive and catalytic applications with excellent oxidation resistance.", applications: ["Printed Electronics", "Thermal Management", "Catalysts", "Conductive Pastes"], slug: "copper-nanoparticles" },
+    { id: 4, tag: "Nanomaterials", title: "Copper Oxide Nanoparticles", description: "Precision-synthesized copper oxide nanoparticles for advanced catalytic and sensing applications.", applications: ["Gas Sensors", "Photocatalysis", "Energy Storage", "Antimicrobial Agents"], slug: "copper-oxide-nanoparticles" },
+    { id: 5, tag: "Nanomaterials", title: "Silver based Electrically Conductive Inks", description: "Customizable, high-performance conductive inks optimized for various printing technologies.", applications: ["RFID/NFC Tags", "Printed Circuit Boards", "Flexible Sensors", "Membrane Switches"], slug: "silver-based-electrically-conductive-inks" }
   ];
 
   const flexibleElectronics = [
     { 
-      title: "Flexible Sensors", 
-      desc: "Wearable and stretchable sensors for health monitoring.",
-      icon: <Activity className="w-6 h-6" />,
-      specs: ["High Sensitivity", "Biocompatible"]
+      id: 1,
+      tag: "Flexible Electronics",
+      title: "Screen printed electrodes", 
+      description: "High-quality, reproducible screen printed electrodes for electrochemical sensing and biosensor applications.", 
+      applications: ["Biosensors", "Environmental Monitoring", "Point-of-Care Diagnostics"],
+      slug: "screen-printed-electrodes"
     },
     { 
-      title: "Smart Packaging", 
-      desc: "RFID and NFC integrated flexible circuits for logistics.",
-      icon: <Cpu className="w-6 h-6" />,
-      specs: ["Ultra-Thin", "Scalable Design"]
+      id: 2,
+      tag: "Flexible Electronics",
+      title: "Customized screen printed sensors", 
+      description: "Tailored sensor solutions designed to meet specific detection requirements for industrial and medical use.", 
+      applications: ["Wearable Health Monitors", "Industrial Automation", "Smart Packaging"],
+      slug: "screen-printed-sensors"
     },
+    { 
+      id: 3,
+      tag: "Flexible Electronics",
+      title: "Customized screen printed patterns", 
+      description: "Precision printed conductive patterns for flexible circuit designs and advanced electronic integration.", 
+      applications: ["Flexible Circuits", "Antennas", "Heaters", "Touch Interfaces"],
+      slug: "screen-printed-patterns"
+    }
   ];
 
   return (
-    <section id="products" className="py-8 space-y-16">
+    <section id="products" className="pt-0 pb-12 space-y-16">
+      {/* Product Section Navigation */}
+      <div className="sticky top-20 z-30 bg-bg/80 backdrop-blur-md py-6 border-b border-white/5 mx-auto w-full flex justify-center mb-12">
+        <div className="flex gap-6">
+          {[
+            { id: 'nanomaterials', label: 'Nanomaterials' },
+            { id: 'flexible-electronics', label: 'Flexible Electronics' }
+          ].map((cat) => (
+            <a 
+              key={cat.id}
+              href={`#${cat.id}`}
+              className={`text-[9px] font-black uppercase tracking-[0.25em] px-5 py-2 rounded-full transition-all duration-300 ${activeCategory === cat.id ? 'bg-[#FFB800] text-[#050505] shadow-[0_0_15px_rgba(255,184,0,0.2)]' : 'text-text-secondary hover:text-[#FFB800]'}`}
+            >
+              {cat.label}
+            </a>
+          ))}
+        </div>
+      </div>
+
       {/* Nanomaterials Category */}
-      <div className="space-y-10">
-        <div className="flex items-center gap-4">
-          <div className="h-px flex-1 bg-border" />
-          <h2 className="text-2xl font-black uppercase tracking-[0.3em] text-accent">Nanomaterials</h2>
-          <div className="h-px flex-1 bg-border" />
+      <div id="nanomaterials" data-product-category className="space-y-8 scroll-mt-36">
+        <div className="flex items-center justify-center gap-4">
+          <div className="h-px w-12 bg-[#FFB800]/20" />
+          <h2 className="text-xl font-black uppercase tracking-[0.3em] text-[#FFB800] text-center">Nanomaterials</h2>
+          <div className="h-px w-12 bg-[#FFB800]/20" />
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Premium Silver Nanowires Card */}
-          <motion.div 
-            whileHover={{ y: -8 }}
-            className="group relative flex flex-col p-8 rounded-2xl bg-[#121214] border border-white/5 hover:border-[#D4AF37]/30 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(212,175,55,0.1)]"
-          >
-            {/* Product Image */}
-            <div className="relative h-40 mb-6 rounded-xl overflow-hidden bg-white/5 border border-white/10">
-              <img 
-                src="https://picsum.photos/seed/nanotech/600/400" 
-                alt="Silver Nanowires Micrograph" 
-                className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#121214] via-transparent to-transparent" />
-            </div>
-
-            <div className="mb-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
-                <h3 className="text-xl font-black tracking-tight text-white group-hover:text-[#D4AF37] transition-colors">Silver Nanowires</h3>
-              </div>
-              <p className="text-xs font-medium text-text-secondary">Nanoodles: High-purity geometries.</p>
-            </div>
-
-            {/* Data Display - Minimalist Grid */}
-            <div className="flex flex-col gap-3 mb-8">
-              {[
-                { d: "100 nm (Ø)", l: "60 μm (L)" },
-                { d: "200 nm (Ø)", l: "45 µm (L)" },
-                { d: "300 nm (Ø)", l: "30 µm (L)" },
-                { d: "500 nm (Ø)", l: "20 µm (L)" },
-              ].map((config, idx) => (
-                <div key={idx} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{config.d}</span>
-                  <div className="h-px flex-1 mx-4 bg-white/5" />
-                  <span className="text-[10px] font-black text-[#D4AF37] tracking-tighter">{config.l}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Footer Tags */}
-            <div className="mt-auto flex flex-wrap gap-2">
-              <div className="px-3 py-1.5 rounded-lg border border-[#D4AF37] bg-transparent">
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#D4AF37]">R&D Scale (mg)</span>
-              </div>
-              <div className="px-3 py-1.5 rounded-lg border border-[#D4AF37] bg-transparent">
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#D4AF37]">Industrial Scale (kg)</span>
-              </div>
-            </div>
-          </motion.div>
-
-          {nanomaterials.slice(1).map((p, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto px-4 w-full">
+          {nanomaterialsData.map((p) => (
             <motion.div 
-              key={i}
-              whileHover={{ y: -10 }}
-              className="card group p-8 flex flex-col gap-6"
+              key={p.id}
+              whileHover={{ y: -8 }}
+              className="group flex flex-col h-full bg-[#121212] border border-[#333333] rounded-[16px] overflow-hidden transition-all duration-500 hover:border-[#FFB800]/50"
             >
-              <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
-                {p.icon}
+              {/* Image Wrapper (Top 40%) */}
+              <div className="relative h-48 overflow-hidden bg-[#080808]">
+                <div className="absolute inset-0 opacity-40 group-hover:opacity-100 transition-opacity duration-700">
+                  <LemniscateBloom color="#FFB800" className="w-full h-full scale-125 group-hover:scale-150 transition-transform duration-1000" />
+                </div>
+                {/* Tag Pill */}
+                <span className="absolute bottom-4 left-4 bg-[#080808] text-[#FFB800] px-3 py-1 rounded-sm text-[8px] font-black uppercase tracking-widest border border-[#333]">
+                  {p.tag}
+                </span>
               </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2 group-hover:text-accent transition-colors">{p.title}</h3>
-                <p className="text-sm text-text-secondary leading-relaxed">{p.desc}</p>
-              </div>
-              <div className="mt-auto pt-6 border-t border-border flex flex-wrap gap-2">
-                {p.specs.map((spec, si) => (
-                  <span key={si} className="text-[8px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-white/5 text-text-secondary">
-                    {spec}
-                  </span>
-                ))}
+
+              {/* Text Area (Remaining) */}
+              <div className="flex-1 p-6 flex flex-col">
+                <h3 className="text-xl font-black text-white mb-3 tracking-tighter group-hover:text-[#FFB800] transition-colors">{p.title}</h3>
+                <p className="text-[#A0A0A0] text-sm leading-relaxed mb-6 font-medium">
+                  {p.description}
+                </p>
+
+                {/* Applications Grid */}
+                <div className="flex flex-wrap gap-2 mt-auto mb-8">
+                  {p.applications.map((app, idx) => (
+                    <span 
+                      key={idx}
+                      className="px-3 py-1 bg-transparent border border-[#333333] text-[10px] text-white font-bold rounded-full hover:border-[#FFB800] hover:text-[#FFB800] transition-all cursor-default"
+                    >
+                      {app}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Button Group */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <motion.button 
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 py-3 bg-[#FFB800] text-[#050505] font-black uppercase tracking-[0.2em] text-[10px] rounded-lg hover:bg-white transition-colors duration-300"
+                  >
+                    Request Quote
+                  </motion.button>
+                  <motion.button 
+                    onClick={() => p.slug && navigate(`/product/${p.slug}`)}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 py-3 bg-transparent border border-[#FFB800] text-[#FFB800] font-black uppercase tracking-[0.2em] text-[10px] rounded-lg hover:bg-[#FFB800] hover:text-[#050505] transition-all duration-300"
+                  >
+                    Visit Detail
+                  </motion.button>
+                </div>
               </div>
             </motion.div>
           ))}
@@ -132,33 +173,64 @@ export default function Products() {
       </div>
 
       {/* Flexible Electronics Category */}
-      <div className="space-y-10">
-        <div className="flex items-center gap-4">
-          <div className="h-px flex-1 bg-border" />
-          <h2 className="text-2xl font-black uppercase tracking-[0.3em] text-accent">Flexible Electronics</h2>
-          <div className="h-px flex-1 bg-border" />
+      <div id="flexible-electronics" data-product-category className="space-y-8 scroll-mt-36">
+        <div className="flex items-center justify-center gap-4">
+          <div className="h-px w-12 bg-[#FFB800]/20" />
+          <h2 className="text-xl font-black uppercase tracking-[0.3em] text-[#FFB800] text-center">Flexible Electronics</h2>
+          <div className="h-px w-12 bg-[#FFB800]/20" />
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto w-full">
-          {flexibleElectronics.map((p, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto px-4 w-full">
+          {flexibleElectronics.map((p) => (
             <motion.div 
-              key={i}
-              whileHover={{ y: -10 }}
-              className="card group p-8 flex flex-col gap-6"
+              key={p.id}
+              whileHover={{ y: -8 }}
+              className="group flex flex-col h-full bg-[#121212] border border-[#333333] rounded-[16px] overflow-hidden transition-all duration-500 hover:border-[#FFB800]/50"
             >
-              <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
-                {p.icon}
+              {/* Image Wrapper (Top 40%) */}
+              <div className="relative h-48 overflow-hidden bg-[#080808]">
+                <div className="absolute inset-0 opacity-40 group-hover:opacity-100 transition-opacity duration-700">
+                  <LemniscateBloom color="#FFB800" className="w-full h-full scale-125 group-hover:scale-150 transition-transform duration-1000" />
+                </div>
+                {/* Tag Pill */}
+                <span className="absolute bottom-4 left-4 bg-[#080808] text-[#FFB800] px-3 py-1 rounded-sm text-[8px] font-black uppercase tracking-widest border border-[#333]">
+                  {p.tag}
+                </span>
               </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2 group-hover:text-accent transition-colors">{p.title}</h3>
-                <p className="text-sm text-text-secondary leading-relaxed">{p.desc}</p>
-              </div>
-              <div className="mt-auto pt-6 border-t border-border flex flex-wrap gap-2">
-                {p.specs.map((spec, si) => (
-                  <span key={si} className="text-[8px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-white/5 text-text-secondary">
-                    {spec}
-                  </span>
-                ))}
+
+              <div className="flex-1 p-6 flex flex-col">
+                <h3 className="text-xl font-black text-white mb-3 tracking-tighter group-hover:text-[#FFB800] transition-colors">{p.title}</h3>
+                <p className="text-[#A0A0A0] text-sm leading-relaxed mb-6 font-medium">
+                  {p.description}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mt-auto mb-8">
+                  {p.applications.map((app, idx) => (
+                    <span 
+                      key={idx}
+                      className="px-3 py-1 bg-transparent border border-[#333333] text-[10px] text-white font-bold rounded-full hover:border-[#FFB800] hover:text-[#FFB800] transition-all cursor-default"
+                    >
+                      {app}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Button Group */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <motion.button 
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 py-3 bg-[#FFB800] text-[#050505] font-black uppercase tracking-[0.2em] text-[10px] rounded-lg hover:bg-white transition-colors duration-300"
+                  >
+                    Request Quote
+                  </motion.button>
+                  <motion.button 
+                    onClick={() => p.slug && navigate(`/product/${p.slug}`)}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 py-3 bg-transparent border border-[#FFB800] text-[#FFB800] font-black uppercase tracking-[0.2em] text-[10px] rounded-lg hover:bg-[#FFB800] hover:text-[#050505] transition-all duration-300"
+                  >
+                    Visit Detail
+                  </motion.button>
+                </div>
               </div>
             </motion.div>
           ))}
